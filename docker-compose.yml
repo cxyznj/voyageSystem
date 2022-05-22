@@ -1,0 +1,37 @@
+version: '3.9'
+
+services:
+  api:
+    build: ./api
+    volumes:
+      - django_static_volume:/usr/src/app/static
+    expose:
+      - 8000
+    env_file:
+      - ./api/.env
+    command: gunicorn voyages.wsgi:application --bind 0.0.0.0:8000
+
+  web:
+    build: ./web
+    volumes:
+      - react_static_volume:/usr/src/app/build/static
+    expose:
+      - 3000
+    command: serve -s build -l 3000
+    depends_on:
+      - api
+
+  nginx:
+    restart: always
+    build: ./nginx
+    volumes:
+      - django_static_volume:/usr/src/app/django_files/static
+      - react_static_volume:/usr/src/app/react_files/static
+    ports:
+      - 80:80
+    depends_on:
+      - web
+
+volumes:
+  django_static_volume:
+  react_static_volume:

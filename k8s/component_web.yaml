@@ -1,0 +1,39 @@
+###########################
+# Deployment
+###########################
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      component: web
+  template:
+    metadata:
+      labels:
+        component: web
+    spec:
+      containers:
+        - name: web-container
+          image: changxu1998/sp22-cs411-team007-xgtc_web:latest
+          ports:
+            - containerPort: 3000
+          command: ["sh", "-c", "serve -s build -l 3000 --no-clipboard"]       
+
+---
+###########################
+# Cluster IP Service
+###########################
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-cluster-ip-service
+spec:
+  type: ClusterIP
+  selector:
+    component: web
+  ports:
+    - port: 3000
+      targetPort: 3000
